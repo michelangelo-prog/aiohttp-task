@@ -1,0 +1,30 @@
+version: '2'
+
+services:
+  postgres:
+    container_name: postgres
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    env_file:
+      - ./.envs/.local/.postgres
+    ports:
+      - 5432:5432
+
+  items_app:
+    container_name: items-app
+    build:
+      context: ./items_app
+      dockerfile: ./compose/local/Dockerfile
+    restart: always
+    command: >
+      bash -c "python ./manage.py"
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./items_app:/usr/src/app
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: bitnami/rabbitmq:3.8.9
+    hostname: rabbitmq
