@@ -1,15 +1,12 @@
-version: '2'
+version: '3'
 
 services:
-  postgres:
-    container_name: postgres
-    build:
-      context: ./db
-      dockerfile: Dockerfile
-    env_file:
-      - ./.envs/.local/.postgres
-    ports:
-      - 5432:5432
+  rabbit:
+    image: rabbitmq:latest
+    hostname: rabbit
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
 
   items_app:
     container_name: items-app
@@ -24,7 +21,25 @@ services:
     volumes:
       - ./items_app:/usr/src/app
 
-  rabbitmq:
-    container_name: rabbitmq
-    image: bitnami/rabbitmq:3.8.9
-    hostname: rabbitmq
+  postgres:
+    container_name: postgres
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    env_file:
+      - ./.envs/.local/.postgres
+    ports:
+      - 5432:5432
+
+  worker:
+    container_name: worker
+    build:
+      context: ./items_app
+      dockerfile: ./compose/local/Dockerfile
+    hostname: worker
+    command: bash -c "celery -A items.app.worker.handler:worker worker -P threads --loglevel=info"
+    ports:
+      - 5003:5000
+    depends_on:
+      - rabbit
+
