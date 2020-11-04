@@ -17,5 +17,3 @@ COPY . /usr/src/app
 
 # add entrypoint.sh
 COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
-
-EXPOSE 8080
