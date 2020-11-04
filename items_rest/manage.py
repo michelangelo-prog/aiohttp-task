@@ -1,4 +1,4 @@
-from items.main import main
+from items import main
 
 if __name__ == '__main__':
     main()

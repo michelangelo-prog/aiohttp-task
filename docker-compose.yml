@@ -18,6 +18,8 @@ services:
       bash -c "python ./manage.py"
     ports:
       - "8000:8080"
+    env_file:
+      - ./.envs/.items_rest
     depends_on:
       - rabbitmq
 
