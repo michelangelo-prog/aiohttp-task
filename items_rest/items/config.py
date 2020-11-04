@@ -7,5 +7,10 @@ class BaseConfig:
 
 
 class RabbitConfig:
-    BROKER_URL = os.getenv("RABBIT_URL")
+    BROKER_URL = "amqp://{}:{}@{}:{}".format(
+        os.getenv("RABBITMQ_DEFAULT_USER"),
+        os.getenv("RABBITMQ_DEFAULT_PASS"),
+        os.getenv("RABBITMQ_HOST"),
+        os.getenv("RABBITMQ_PORT"),
+    )
     STORAGE_QUEUE_NAME = os.getenv("STORAGE_QUEUE_NAME")

@@ -1,33 +1,36 @@
 version: '3'
 
 services:
-  rabbitmq:
-    image: rabbitmq:3.8.9
-    hostname: rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=mypass
-
   items_rest:
     container_name: items-rest
     build:
       context: ./items_rest
-      dockerfile: ./compose/local/Dockerfile
-    restart: always
-    command: >
-      bash -c "python ./manage.py"
+      dockerfile: ./Dockerfile
     ports:
       - "8000:8080"
     env_file:
       - ./.envs/.items_rest
+      - ./.envs/.rabbitmq
+    restart: always
+    command: >
+      bash -c "./entrypoint.sh &&
+               python -u ./manage.py"
     depends_on:
       - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3.8.9
+    hostname: rabbitmq
+    env_file:
+      - ./.envs/.rabbitmq
 
   items_worker:
     container_name: items-worker
     build:
       context: ./items_worker
       dockerfile: ./Dockerfile
+    env_file:
+      - ./.envs/.rabbitmq
     restart: always
     command: >
       bash -c "./entrypoint.sh &&

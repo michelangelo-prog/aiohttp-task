@@ -8,11 +8,13 @@ async def send_message_to_broker(
     message,
     broker_url=RabbitConfig.BROKER_URL,
     routing_key=RabbitConfig.STORAGE_QUEUE_NAME,
+    priority=0,
 ):
     connection = await connect_robust(broker_url)
     channel = await connection.channel()
     await channel.default_exchange.publish(
-        Message(message.encode(), content_type="text/plain"), routing_key=routing_key
+        Message(message.encode(), content_type="text/plain", priority=priority),
+        routing_key=routing_key,
     )
 
 

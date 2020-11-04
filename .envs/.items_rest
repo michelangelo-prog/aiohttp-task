@@ -1,4 +1,2 @@
 PORT=8080
 HOST=0.0.0.0
-RABBIT_URL=amqp://admin:mypass@rabbitmq:5672
-STORAGE_QUEUE_NAME=storage_queue

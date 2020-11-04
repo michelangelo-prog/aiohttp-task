@@ -1,5 +1,5 @@
-from .api.v1.views import routes
+from .api.v1.views import routes as api_v1_routes
 
 
 def setup_routes(app):
-    app.add_routes(routes)
+    app.add_routes(api_v1_routes)
