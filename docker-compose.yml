@@ -1,45 +1,37 @@
 version: '3'
 
 services:
-  rabbit:
-    image: rabbitmq:latest
-    hostname: rabbit
+  rabbitmq:
+    image: rabbitmq:3.8.9
+    hostname: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=mypass
 
-  items_app:
-    container_name: items-app
+  items_rest:
+    container_name: items-rest
     build:
-      context: ./items_app
+      context: ./items_rest
       dockerfile: ./compose/local/Dockerfile
     restart: always
     command: >
       bash -c "python ./manage.py"
     ports:
       - "8000:8080"
-    volumes:
-      - ./items_app:/usr/src/app
-
-  postgres:
-    container_name: postgres
-    build:
-      context: ./db
-      dockerfile: Dockerfile
-    env_file:
-      - ./.envs/.local/.postgres
-    ports:
-      - 5432:5432
-
-  worker:
-    container_name: worker
-    build:
-      context: ./items_app
-      dockerfile: ./compose/local/Dockerfile
-    hostname: worker
-    command: bash -c "celery -A items.app.worker.handler:worker worker -P threads --loglevel=info"
-    ports:
-      - 5003:5000
     depends_on:
-      - rabbit
+      - rabbitmq
+
+  items_worker:
+    container_name: items-worker
+    build:
+      context: ./items_worker
+      dockerfile: ./Dockerfile
+    restart: always
+    command: >
+      bash -c "./entrypoint.sh &&
+               python -u ./manage.py"
+    depends_on:
+      - rabbitmq
+
+
 

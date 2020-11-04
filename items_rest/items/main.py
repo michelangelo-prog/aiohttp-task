@@ -6,8 +6,6 @@ from aiohttp import web
 
 async def init_app():
     app = web.Application()
-
-    # setup views and routes
     setup_routes(app)
 
     return app
