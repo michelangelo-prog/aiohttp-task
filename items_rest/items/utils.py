@@ -1,23 +1,28 @@
-from aio_pika import connect, connect_robust, Message, IncomingMessage
-
 import uuid
 
+from aio_pika import IncomingMessage, Message, connect, connect_robust
 from items.config import RabbitConfig
 
-async def send_message_to_broker(message, broker_url=RabbitConfig.BROKER_URL, routing_key=RabbitConfig.STORAGE_QUEUE_NAME):
+
+async def send_message_to_broker(
+    message,
+    broker_url=RabbitConfig.BROKER_URL,
+    routing_key=RabbitConfig.STORAGE_QUEUE_NAME,
+):
     connection = await connect_robust(broker_url)
     channel = await connection.channel()
     await channel.default_exchange.publish(
-        Message(
-            message.encode(),
-            content_type="text/plain"
-        ),
-        routing_key=routing_key
+        Message(message.encode(), content_type="text/plain"), routing_key=routing_key
     )
 
 
 class GetItemRpcClient:
-    def __init__(self, loop, broker_url=RabbitConfig.BROKER_URL, routing_queue_name=RabbitConfig.STORAGE_QUEUE_NAME):
+    def __init__(
+        self,
+        loop,
+        broker_url=RabbitConfig.BROKER_URL,
+        routing_queue_name=RabbitConfig.STORAGE_QUEUE_NAME,
+    ):
         self.connection = None
         self.channel = None
         self.callback_queue = None
@@ -27,11 +32,11 @@ class GetItemRpcClient:
         self.routing_queue_name = routing_queue_name
 
     async def connect(self):
-        self.connection = await connect(
-            self.broker_url, loop=self.loop
-        )
+        self.connection = await connect(self.broker_url, loop=self.loop)
         self.channel = await self.connection.channel()
-        self.callback_queue = await self.channel.declare_queue(exclusive=True, auto_delete=True)
+        self.callback_queue = await self.channel.declare_queue(
+            exclusive=True, auto_delete=True
+        )
         await self.callback_queue.consume(self.on_response)
 
         return self
