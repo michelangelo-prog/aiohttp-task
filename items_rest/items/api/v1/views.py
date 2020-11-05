@@ -2,6 +2,7 @@ import asyncio
 import json
 
 from aiohttp import web
+from aiohttp_validate import validate
 from items.helpers import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -10,21 +11,37 @@ from items.helpers import (
 )
 from items.utils import GetItemRpcClient, send_message_to_broker
 
-routes = web.RouteTableDef()
+
+add_item_request_schema = {
+    "type": "object",
+    "properties": {
+        "key": {"type": "string"},
+        "value": {"type": "number"},
+    },
+    "required": ["key", "value"],
+    "additionalProperties": False,
+}
 
 
-@routes.post("/api/v1/items/", name="add_item")
-async def add_item(request):
-    data = await request.json()
+@validate(request_schema=add_item_request_schema)
+async def add_item(request, *args):
     await send_message_to_broker(
-        json.dumps({"method": "POST", "data": data}), priority=9
+        json.dumps(
+            {
+                "method": "POST",
+                "data": {
+                    "key": request["key"],
+                    "value": request["value"],
+                },
+            }
+        ),
+        priority=9,
     )
     return web.json_response(
         data={"status": "Request created."}, status=HTTP_201_CREATED
     )
 
 
-@routes.get("/api/v1/items/{key}", name="get_item")
 async def get_item(request):
     key = request.match_info["key"]
     loop = asyncio.get_running_loop()
