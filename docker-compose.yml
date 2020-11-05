@@ -19,6 +19,7 @@ services:
       - rabbitmq
 
   rabbitmq:
+    container_name: rabbimq
     image: rabbitmq:3.8.9
     hostname: rabbitmq
     env_file:
