@@ -1,23 +1,13 @@
 import json
 from unittest.mock import call
 
-from aiohttp import web
-from aiohttp.test_utils import AioHTTPTestCase, mock, unittest_run_loop
+from aiohttp.test_utils import mock, unittest_run_loop
 from items.helpers import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from items.routes import setup_routes
+from items.tests.component.mixins import BaseTestCase, ItemMixin
 from items.tests.factories import ItemDictFactory
 
 
-class TestAddItem(AioHTTPTestCase):
-    async def get_application(self):
-        app = web.Application()
-        setup_routes(app)
-        return app
-
-    async def add_item(self, **kwargs):
-        response = await self.client.post("/api/v1/items/", **kwargs)
-        return response
-
+class TestAddItem(ItemMixin, BaseTestCase):
     async def side_effect__send_message_to_broker(self, *args, **kwargs):
         pass
 
