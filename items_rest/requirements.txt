@@ -1,3 +1,5 @@
 aiohttp==3.7.2
 aiohttp-validate==1.1.0
 aio-pika==6.7.1
+pytest-aiohttp==0.3.0
+factory-boy==3.1.0
